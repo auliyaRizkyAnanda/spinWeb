@@ -3,25 +3,52 @@ const ctx = canvas.getContext("2d");
 const center = canvas.width / 2;
 
 let angle = 0;
-let peserta = getData("peserta");
-let hadir = getData("hadir");
-let tidakHadir = getData("tidakHadir");
+let peserta = [];
+let hadir = [];
+let tidakHadir = [];
 
 let currentStar = null;
 let currentWinner = null;
 let timerInterval;
 let timeLeft = 10;
 
-// ---------- STORAGE ----------
+/* ================= STORAGE ================= */
+
 function getData(key) {
-  return JSON.parse(localStorage.getItem(key)) || [];
+  const raw = JSON.parse(localStorage.getItem(key)) || [];
+
+  // 🧹 FILTER DATA RUSAK
+  return raw.filter(item => {
+    if (typeof item === "string") {
+      return item.trim() !== "";
+    }
+    if (typeof item === "object") {
+      return item && item.nama;
+    }
+    return false;
+  });
 }
 
 function saveData(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
 }
 
-// ---------- WHEEL ----------
+/* ================= INIT ================= */
+
+function initData() {
+  peserta = getData("peserta");
+  hadir = getData("hadir");
+  tidakHadir = getData("tidakHadir");
+
+  saveData("peserta", peserta);
+  saveData("hadir", hadir);
+  saveData("tidakHadir", tidakHadir);
+}
+
+initData();
+
+/* ================= WHEEL ================= */
+
 function drawWheel() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -42,7 +69,7 @@ function drawWheel() {
     ctx.beginPath();
     ctx.moveTo(center, center);
     ctx.arc(center, center, center, start, end);
-    ctx.fillStyle = `hsl(${i * 360 / peserta.length},80%,55%)`;
+    ctx.fillStyle = `hsl(${(i * 360) / peserta.length},80%,55%)`;
     ctx.fill();
 
     ctx.save();
@@ -58,7 +85,11 @@ function drawWheel() {
 
 function spinWheel() {
   peserta = getData("peserta");
-  if (peserta.length === 0) return alert("Peserta habis!");
+
+  if (!peserta.length) {
+    alert("Peserta habis!");
+    return;
+  }
 
   const duration = 4000;
   const startAngle = angle;
@@ -68,16 +99,22 @@ function spinWheel() {
   function animate(t) {
     if (!startTime) startTime = t;
     const progress = Math.min((t - startTime) / duration, 1);
+
     angle = startAngle + spin * (1 - Math.pow(1 - progress, 3));
     drawWheel();
 
-    if (progress < 1) requestAnimationFrame(animate);
-    else pickWinner();
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      pickWinner();
+    }
   }
+
   requestAnimationFrame(animate);
 }
 
-// ---------- PICK WINNER ----------
+/* ================= PICK WINNER ================= */
+
 function pickWinner() {
   const slice = (2 * Math.PI) / peserta.length;
   const pointer = (3 * Math.PI) / 2;
@@ -86,8 +123,15 @@ function pickWinner() {
   if (adj < 0) adj += 2 * Math.PI;
 
   const index = Math.floor(adj / slice);
-  currentWinner = peserta[index];
+  const winner = peserta[index];
 
+  // 🚨 SAFETY CHECK
+  if (!winner) {
+    alert("Data peserta bermasalah. Refresh admin.");
+    return;
+  }
+
+  currentWinner = winner;
   currentStar = getRandomStar();
 
   peserta.splice(index, 1);
@@ -97,11 +141,11 @@ function pickWinner() {
   drawWheel();
 }
 
-// ---------- MODAL ----------
+/* ================= MODAL ================= */
+
 function showModal() {
   document.getElementById("modal").style.display = "flex";
   document.getElementById("modalNama").innerText = currentWinner;
-  
   document.getElementById("modalStar").innerText =
     `Bintang: ⭐ ${currentStar}`;
 
@@ -125,29 +169,36 @@ function closeModal() {
   updateLists();
 }
 
-// ---------- ACTION ----------
+/* ================= ACTION ================= */
+
 function setHadir() {
+  if (!currentWinner) return;
+
   hadir.push({
     nama: currentWinner,
     status: "Hadir",
     bintang: currentStar
   });
+
   saveData("hadir", hadir);
   closeModal();
 }
 
 function setTidakHadir() {
+  if (!currentWinner) return;
+
   tidakHadir.push({
     nama: currentWinner,
     status: "Tidak Hadir",
     bintang: "-"
   });
+
   saveData("tidakHadir", tidakHadir);
   closeModal();
 }
 
+/* ================= LIST ================= */
 
-// ---------- LIST ----------
 function updateLists() {
   hadir = getData("hadir");
   tidakHadir = getData("tidakHadir");
@@ -159,28 +210,23 @@ function updateLists() {
     tidakHadir.map(p => `<li>${p.nama}</li>`).join("");
 }
 
-
 updateLists();
 drawWheel();
 
-// ---------- file csv ----------
+/* ================= EXPORT CSV ================= */
+
 function getTanggalHariIni() {
-  const today = new Date();
-  const dd = String(today.getDate()).padStart(2, "0");
-  const mm = String(today.getMonth() + 1).padStart(2, "0");
-  const yyyy = today.getFullYear();
-
-  return `${dd}-${mm}-${yyyy}`;
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2, "0")}-${String(
+    d.getMonth() + 1
+  ).padStart(2, "0")}-${d.getFullYear()}`;
 }
+
 function exportData() {
-  const hadirRaw = JSON.parse(localStorage.getItem("hadir")) || [];
-  const tidakHadirRaw = JSON.parse(localStorage.getItem("tidakHadir")) || [];
+  const hadir = getData("hadir");
+  const tidakHadir = getData("tidakHadir");
 
-  // 🔒 FILTER DATA NULL / RUSAK
-  const hadir = hadirRaw.filter(p => p && p.nama);
-  const tidakHadir = tidakHadirRaw.filter(p => p && p.nama);
-
-  if (hadir.length === 0 && tidakHadir.length === 0) {
+  if (!hadir.length && !tidakHadir.length) {
     alert("Belum ada data untuk diexport!");
     return;
   }
@@ -192,35 +238,32 @@ function exportData() {
   csv += `${tanggal},,,\n\n`;
   csv += "Nomor,Nama,Status,Jenis Bintang\n";
 
-  let nomor = 1;
+  let no = 1;
 
   hadir.forEach(p => {
-    csv += `${nomor},${p.nama},Hadir,${p.bintang}\n`;
-    nomor++;
+    csv += `${no},${p.nama},Hadir,${p.bintang}\n`;
+    no++;
   });
 
   tidakHadir.forEach(p => {
-    csv += `${nomor},${p.nama},Tidak Hadir,-\n`;
-    nomor++;
+    csv += `${no},${p.nama},Tidak Hadir,-\n`;
+    no++;
   });
-
-  const filename = `Live Spin Bintang (${tanggal}).csv`;
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = filename;
+  link.download = `Live Spin Bintang (${tanggal}).csv`;
   link.click();
 
   localStorage.setItem("csvDownloaded", "true");
 }
 
-// ---------- kode reset ----------
-function resetAll() {
-  const downloaded = localStorage.getItem("csvDownloaded");
+/* ================= RESET ================= */
 
-  if (downloaded !== "true") {
-    alert("⚠️ Harap download hasil undian terlebih dahulu sebelum reset!");
+function resetAll() {
+  if (localStorage.getItem("csvDownloaded") !== "true") {
+    alert("⚠️ Download hasil terlebih dahulu sebelum reset!");
     return;
   }
 
@@ -230,7 +273,20 @@ function resetAll() {
   location.reload();
 }
 
-// ---------- bintang ----------
+/* ================= BINTANG ================= */
+
 function getRandomStar() {
   return Math.random() < 0.7 ? 1 : 10;
+}
+
+/* ================= LOGOUT ================= */
+
+function logoutAdmin() {
+  if (!confirm("Akhiri sesi admin?")) return;
+
+  localStorage.removeItem("adminLock");
+  localStorage.removeItem("isAdmin");
+  localStorage.removeItem("adminSession");
+
+  window.location.href = "index.html";
 }
