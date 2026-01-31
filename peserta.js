@@ -50,3 +50,29 @@ function submitNama() {
   localStorage.removeItem("sudahWA");
   document.getElementById("submitBtn").disabled = true;
 }
+function goAdmin() {
+  // 🚫 jika admin sedang aktif, blokir
+  if (localStorage.getItem("adminLock") === "active") {
+    alert("Undian sedang berlangsung. Silakan tunggu.");
+    return;
+  }
+
+  const username = prompt("Masukkan username untuk verifikasi");
+  if (!username) return;
+
+  // 🔑 admin rahasia
+  if (username === "Y0n4d12345") {
+    localStorage.setItem("isAdmin", "yes");
+    localStorage.setItem("adminLock", "active");
+    localStorage.setItem("adminSession", Date.now());
+
+    window.location.href = "admin.html";
+    return;
+  }
+
+  // 👤 user biasa → TETAP DI HALAMAN INI
+  alert(
+    "Terima kasih sudah ikut undian 🎉\n" +
+    "Silakan isi username, klik WhatsApp, lalu submit."
+  );
+}
