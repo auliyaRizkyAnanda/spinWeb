@@ -3,39 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="logo.png">
+  <link rel="icon" type="image/png" href="logo.png">
   <title>Daftar Undian</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="user-page">
 
   <div class="container">
     <h1>🎉 Daftar Undian 🎉</h1>
-    <p>Masukkan username facebook kamu untuk ikut undian</p>
 
-    <input type="text" id="nama" placeholder="Username facebook" required>
-
-<a class="wa-link" href="#" onclick="shareWA()">
-  Salin Teks & Buka WhatsApp
-</a>
-
-<button id="submitBtn" onclick="submitNama()" disabled>
-  Submit
+    <button class="text-button" onclick="goAdmin()">
+  Masukkan username facebook kamu untuk ikut undian
 </button>
 
-<p id="status">
-<br>
-Agar bisa submit, klik tombol hijau lalu:<br>
-1. WhatsApp akan terbuka<br>
-2. Pilih room chat dan tempel (paste) pesan<br>
-3. Kembali ke website<br><br>
-Ajak temanmu sebanyak-banyaknya yaa..
-</p>
 
+    <input
+      type="text"
+      id="nama"
+      placeholder="Username facebook"
+      required
+    >
 
-    <p id="status"></p>
+    <a class="wa-link" href="#" onclick="shareWA()">
+      Salin Teks & Buka WhatsApp
+    </a>
+
+    <button id="submitBtn" onclick="submitNama()" disabled>
+      Submit
+    </button>
+
+    <p id="status">
+      Agar bisa submit, klik tombol hijau lalu:<br>
+      1. WhatsApp akan terbuka<br>
+      2. Pilih room chat dan tempel (paste) pesan<br>
+      3. Kembali ke website<br><br>
+      Ajak temanmu sebanyak-banyaknya yaa..
+    </p>
   </div>
 
-<script src="peserta.js"></script>
+  <script src="peserta.js"></script>
 </body>
 </html>
