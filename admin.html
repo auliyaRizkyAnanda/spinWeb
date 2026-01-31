@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Wheel</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="logo.png">
+</head>
+<body class="admin-page">
+
+<div class="admin-layout">
+
+  <!-- WHEEL -->
+  <div class="admin-container">
+    <h1>🎡 WHEEL UNDIAN 🎡</h1>
+
+    <div class="wheel-wrapper">
+      <div class="pointer"></div>
+      <canvas id="wheel" width="400" height="400"></canvas>
+    </div>
+
+    <button onclick="spinWheel()">SPIN</button>
+  </div>
+
+  <!-- LIST -->
+  <div class="list-panel">
+    <div class="list-group">
+    <h2> Hadir ✅ </h2>
+    <p>Selamat anda terpilih, harap DM untuk konfirmasi yaa..</p>
+    <div class="box">
+      <ul id="hadirList"></ul>
+    </div>
+    </div>
+    
+    <div class="list-group">
+      <h2>Tidak Hadir❌</h2>
+      <p>Jika sudah masuk kedalam list TIDAK HADIR harap memasukkan nama kembali</p>
+      <div class="box">
+        <ul id="tidakHadirList"></ul>
+      </div>
+    </div>
+
+    <button type="button" onclick="exportData()">Export to Excel</button>
+    <button onclick="resetAll()" class="danger">♻️ Reset Semua</button>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h2 id="modalNama">Nama</h2>
+    <p id="modalStar" style="font-size:20px; margin:10px 0;"></p>
+    <p>Waktu tersisa: <span id="timer">25</span> detik</p>
+
+    <div class="modal-btn">
+      <button onclick="setHadir()">Hadir</button>
+      <button class="danger" onclick="setTidakHadir()">Tidak Hadir</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
