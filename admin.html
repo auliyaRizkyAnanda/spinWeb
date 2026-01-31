@@ -8,6 +8,9 @@
 <link rel="icon" type="image/png" href="logo.png">
 </head>
 <body class="admin-page">
+<button class="admin-exit" onclick="logoutAdmin()" title="Keluar">
+
+</button>
 
 <div class="admin-layout">
 
@@ -60,6 +63,15 @@
     </div>
   </div>
 </div>
+
+<script>
+  if (
+    localStorage.getItem("isAdmin") !== "yes" ||
+    localStorage.getItem("adminLock") !== "active"
+  ) {
+    window.location.href = "index.html";
+  }
+</script>
 
 <script src="admin.js"></script>
 </body>
